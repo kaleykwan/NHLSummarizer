@@ -10,9 +10,6 @@ app.use(cors());
 app.use(express.json());
 app.use("/game", games);
 
-//getSchedule();
-updateGames();
-
 // start the Express server
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

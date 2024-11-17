@@ -1,5 +1,6 @@
 import db from "../db/connection.js";
 import { DateTime } from "luxon";
+import cron from "node-cron";
 
 function getLocaLDay(utcDate, venueTimezone) {
   const localTime = DateTime.fromISO(utcDate, { zone: "utc" }).setZone(
@@ -54,11 +55,13 @@ export async function getSchedule() {
 }
 
 export async function updateGames() {
+  console.log("running update games");
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const currDate = DateTime.now().setZone(userTimeZone).toISODate();
 
   let collection = db.collection("games");
   const currGames = collection.find({ date: currDate });
+  
   for await (const game of currGames) {
     if (game.gameState === "OFF") {
       continue;
@@ -71,7 +74,6 @@ export async function updateGames() {
     if (gameInfo.gameState === "FUT") {
       continue;
     }
-    console.log(gameInfo);
     await collection.updateOne(
       { game_id: game_id },
       {
@@ -89,3 +91,6 @@ export async function updateGames() {
     );
   }
 }
+
+cron.schedule("0 0 * * *", getSchedule);
+cron.schedule("*/5 * * * *", updateGames);
