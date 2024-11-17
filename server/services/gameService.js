@@ -2,6 +2,7 @@ import db from "../db/connection.js";
 import { DateTime } from "luxon";
 import cron from "node-cron";
 
+// get the date in the venue's timezone
 function getLocaLDay(utcDate, venueTimezone) {
   const localTime = DateTime.fromISO(utcDate, { zone: "utc" }).setZone(
     venueTimezone
@@ -10,18 +11,27 @@ function getLocaLDay(utcDate, venueTimezone) {
   return res;
 }
 
-export async function getSchedule() {
+// get the start time (HH:mm am/pm) in the venue's timezone
+// function getLocalStartTime(utcDate, venueTimezone) {
+//   const formattedTime = DateTime.fromISO(utcDate, { zone: "utc" })
+//     .setZone(venueTimezone)
+//     .toFormat("h:mm a");
+//   return formattedTime;
+// }
+
+export default async function getSchedule() {
   const res = await fetch("https://api-web.nhle.com/v1/schedule/now");
   const schedule = await res.json();
   const gameWeek = schedule.gameWeek;
 
-  let collection = await db.collection("games");
+  let collection = db.collection("games");
   for (let day of gameWeek) {
     for (let game of day.games) {
       try {
         let newGame = {
           game_id: game.id,
           date: getLocaLDay(game.startTimeUTC, game.venueTimezone),
+          startTime: game.startTimeUTC,
           season: game.season,
           gameType: game.gameType,
           venue: game.venue.default,
@@ -54,14 +64,13 @@ export async function getSchedule() {
   }
 }
 
-export async function updateGames() {
+async function updateGames() {
   console.log("running update games");
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const currDate = DateTime.now().setZone(userTimeZone).toISODate();
+  const currDate = DateTime.now().setZone("America/Los_Angeles").toISODate();
 
   let collection = db.collection("games");
   const currGames = collection.find({ date: currDate });
-  
+
   for await (const game of currGames) {
     if (game.gameState === "OFF") {
       continue;
@@ -71,7 +80,7 @@ export async function updateGames() {
       `https://api-web.nhle.com/v1/gamecenter/${game_id}/boxscore`
     );
     const gameInfo = await res.json();
-    if (gameInfo.gameState === "FUT") {
+    if (gameInfo.gameState === "FUT" || gameInfo.gameState === "PRE") {
       continue;
     }
     await collection.updateOne(
@@ -92,5 +101,5 @@ export async function updateGames() {
   }
 }
 
-cron.schedule("0 0 * * *", getSchedule);
+cron.schedule("0 0 * * 0", getSchedule);
 cron.schedule("*/5 * * * *", updateGames);

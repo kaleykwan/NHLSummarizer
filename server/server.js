@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import games from "./routes/game.js";
-import { getSchedule, updateGames } from "./services/gameService.js";
+import getSchedule from "./services/gameService.js";
 
 const PORT = process.env.PORT || 5050;
 const app = express();
@@ -9,6 +9,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/game", games);
+
+//getSchedule();
 
 // start the Express server
 app.listen(PORT, () => {
