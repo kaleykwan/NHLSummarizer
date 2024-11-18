@@ -11,14 +11,6 @@ function getLocaLDay(utcDate, venueTimezone) {
   return res;
 }
 
-// get the start time (HH:mm am/pm) in the venue's timezone
-// function getLocalStartTime(utcDate, venueTimezone) {
-//   const formattedTime = DateTime.fromISO(utcDate, { zone: "utc" })
-//     .setZone(venueTimezone)
-//     .toFormat("h:mm a");
-//   return formattedTime;
-// }
-
 export default async function getSchedule() {
   const res = await fetch("https://api-web.nhle.com/v1/schedule/now");
   const schedule = await res.json();
@@ -36,6 +28,12 @@ export default async function getSchedule() {
           gameType: game.gameType,
           venue: game.venue.default,
           gameState: game.gameState,
+          periodDescriptor: {
+            number: 0,
+            periodType: "REG",
+            timeRemaining: "",
+            inIntermission: false,
+          },
           awayTeam: {
             abbrev: game.awayTeam.abbrev,
             commonName: game.awayTeam.commonName.default,
@@ -44,7 +42,10 @@ export default async function getSchedule() {
           },
           homeTeam: {
             abbrev: game.homeTeam.abbrev,
-            commonName: game.homeTeam.commonName.default,
+            commonName:
+              game.homeTeam.commonName.default === "Utah Hockey Club"
+                ? "Hockey Club"
+                : game.homeTeam.commonName.default,
             placeName: game.homeTeam.placeName.default,
             logo: game.homeTeam.logo,
           },
@@ -72,7 +73,7 @@ async function updateGames() {
   const currGames = collection.find({ date: currDate });
 
   for await (const game of currGames) {
-    if (game.gameState === "OFF") {
+    if (game.gameState === "FINAL" || game.gameState === "OFF") {
       continue;
     }
     const game_id = game.game_id;
@@ -89,12 +90,25 @@ async function updateGames() {
         $set: {
           "boxscore.awayTeamScore": gameInfo.awayTeam.score,
           "boxscore.homeTeamScore": gameInfo.homeTeam.score,
-          "boxscore.awayTeamSOG": gameInfo.awayTeam.sog,
-          "boxscore.homeTeamSOG": gameInfo.homeTeam.sog,
+          "boxscore.awayTeamSOG": gameInfo.awayTeam.sog
+            ? gameInfo.awayTeam.sog
+            : 0,
+          "boxscore.homeTeamSOG": gameInfo.homeTeam.sog
+            ? gameInfo.homeTeam.sog
+            : 0,
           "boxscore.overtime": gameInfo.gameOutcome
             ? gameInfo.gameOutcome.lastPeriodType === "OT"
             : false,
-          gameState: gameInfo.gameState,
+          "periodDescriptor.number": gameInfo.periodDescriptor
+            ? gameInfo.periodDescriptor.number
+            : 0,
+          "periodDescriptor.periodType": gameInfo.periodDescriptor
+            ? gameInfo.periodDescriptor.periodType
+            : "REG",
+          "periodDescriptor.timeRemaining": gameInfo.clock.timeRemaining,
+          "periodDescriptor.isIntermission": gameInfo.clock.isIntermission,
+          gameState:
+            gameInfo.gameState === "CRIT" ? "LIVE" : gameInfo.gameState,
         },
       }
     );
@@ -102,4 +116,4 @@ async function updateGames() {
 }
 
 cron.schedule("0 0 * * 0", getSchedule);
-cron.schedule("*/5 * * * *", updateGames);
+cron.schedule("*/2 * * * *", updateGames);

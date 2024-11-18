@@ -1,4 +1,15 @@
 .team-card {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  width: 200px;
+  justify-content: center;
+}
+
+.team-card-logo {
+  align-self: center;
+}
+
+.team-card-name {
+  font-weight: 500;
 }
