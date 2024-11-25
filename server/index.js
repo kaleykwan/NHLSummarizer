@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(
   cors({
-    origin: "https://nhl-summarizer.vercel.app",
+    origin: ["https://nhl-summarizer.vercel.app", "http://localhost:5173"],
     methods: ["POST", "GET"],
     credentials: true,
   })
