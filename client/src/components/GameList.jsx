@@ -7,9 +7,6 @@ export const GameList = () => {
   const { isPending, data, error } = useQuery({
     queryKey: ["games"],
     queryFn: async () => {
-      // const response = await fetch(
-      //   `${process.env.REACT_APP_BACKEND_URL}/game/current/`
-      // );
       const response = await fetch(
         `https://nhl-summarizer-backend.vercel.app/game/current/`
       );
