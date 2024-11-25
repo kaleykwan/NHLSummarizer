@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
-import games from "./routes/game.js";
-import getSchedule from "./services/GameService.js";
+import games from "../routes/game.js";
+import getSchedule from "../services/GameService.js";
 
 const PORT = process.env.PORT || 5050;
 const app = express();
