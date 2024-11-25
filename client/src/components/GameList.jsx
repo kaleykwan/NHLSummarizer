@@ -8,7 +8,7 @@ export const GameList = () => {
     queryKey: ["games"],
     queryFn: async () => {
       const response = await fetch(
-        "http://nhl-summarizer-backend.vercel.app/game/current/"
+        `${process.env.REACT_APP_BACKEND_URL}/game/current/`
       );
       // const response = await fetch("http://localhost:5050/game/current/");
       if (!response.ok) {
