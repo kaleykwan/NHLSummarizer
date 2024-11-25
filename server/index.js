@@ -9,7 +9,7 @@ const app = express();
 app.use(cors());
 app.use(
   cors({
-    origin: "https://nhl-summarizer-backend.vercel.app",
+    origin: "https://nhl-summarizer.vercel.app",
     methods: ["POST", "GET"],
     credentials: true,
   })
@@ -24,6 +24,8 @@ app.get("/", (req, res) => {
 //getSchedule();
 
 // start the Express server
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server listening on port ${PORT}`);
+// });
+
+export default app;
