@@ -21,7 +21,6 @@ app.get("/", (req, res) => {
   res.json("Hello");
 });
 
-// start the Express server
 // app.listen(PORT, () => {
 //   console.log(`Server listening on port ${PORT}`);
 // });
