@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import games from "./routes/game.js";
-// import getSchedule from "./services/GameService.js";
+import getSchedule from "./services/GameService.js";
+import updateGames from "./services/GameUpdateService.js";
 
 const PORT = process.env.PORT || 5050;
 const app = express();
@@ -21,8 +22,24 @@ app.get("/", (req, res) => {
   res.json("Hello");
 });
 
-// app.listen(PORT, () => {
-//   console.log(`Server listening on port ${PORT}`);
-// });
+app.get("/schedule", async (req, res) => {
+  try {
+    await getSchedule();
+    res.status(200).json({ message: "Schedule updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update schedule" });
+  }
+});
+
+app.get("/update-games", async (req, res) => {
+  try {
+    await updateGames();
+    res.status(200).json({ message: "Games updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update games" });
+  }
+});
 
 export default app;
