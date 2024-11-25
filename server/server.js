@@ -7,6 +7,11 @@ const PORT = process.env.PORT || 5050;
 const app = express();
 
 app.use(cors());
+app.use(
+  cors({
+    origin: "https://nhl-summarizer-backend.vercel.app",
+  })
+);
 app.use(express.json());
 app.use("/game", games);
 
