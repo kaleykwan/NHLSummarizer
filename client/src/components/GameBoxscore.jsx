@@ -4,44 +4,96 @@ import "../styles/GameBoxscore.css";
 import { DateTime } from "luxon";
 
 const GameBoxscore = ({ game }) => {
+  const { gameState, periodDescriptor, boxscore, awayTeam, homeTeam } = game;
+
   const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   const formattedTime = DateTime.fromISO(game.startTime, { zone: "utc" })
     .setZone(userTimeZone)
     .toFormat("h:mm a");
 
+  const gameStateMetadata = () => {
+    if (gameState === "FUT" || gameState === "PRE") {
+      return <p className="boxscore-metadata-future">Today, {formattedTime}</p>;
+    }
+    if (gameState === "LIVE") {
+      return <p className="boxscore-metadata-live">LIVE</p>;
+    }
+    if (gameState === "FINAL" || gameState === "OFF") {
+      return <p className="boxscore-metadata-final">FINAL</p>;
+    }
+    return null;
+  };
+
+  const periodMetadata = () => {
+    if (gameState === "LIVE" && !periodDescriptor.inIntermission) {
+      if (periodDescriptor.periodType === "REG") {
+        return (
+          <p className="boxscore-metadata-time">
+            P{periodDescriptor.number} - {periodDescriptor.timeRemaining}
+          </p>
+        );
+      }
+      if (periodDescriptor.periodType === "OT") {
+        return (
+          <p className="boxscore-metadata-time">
+            OT - {periodDescriptor.timeRemaining}
+          </p>
+        );
+      }
+    }
+    if (gameState === "LIVE" && periodDescriptor.inIntermission) {
+      return (
+        <p className="boxscore-metadata-time">
+          {periodDescriptor.number === 1 ? "1st" : "2nd"} Intermission
+        </p>
+      );
+    }
+    return null;
+  };
+
+  const teamDivider = () => {
+    if (gameState === "FUT" || gameState === "PRE") {
+      return <p className="team-boxscore-vs">at</p>;
+    }
+    if (gameState !== "FUT" && gameState !== "PRE") {
+      return <div className="team-boxscore-dash"></div>;
+    }
+    return null;
+  };
+
   return (
     <div className="boxscore-wrapper">
       <div className="boxscore-metadata">
-        {game.gameState === "FUT" && (
-          <p className="boxscore-metadata-future">Today, {formattedTime}</p>
-        )}
-        {game.gameState === "LIVE" && (
-          <p className="boxscore-metadata-live">LIVE</p>
-        )}
-        {game.gameState === "FINAL" && (
-          <p className="boxscore-metadata-final">FINAL</p>
-        )}
-        {game.gameState === "LIVE" && (
-          <p>
-            P{game.periodDescriptor.number},
-            {game.periodDescriptor.timeRemaining}
-          </p>
-        )}
+        {gameStateMetadata()}
+        {periodMetadata()}
       </div>
       <div className="team-boxscore-wrapper">
         <div className="team-boxscore">
-          <TeamCard team={game.awayTeam} boxscore={game.boxscore}/>
-          <p className="team-boxscore-goals">
-            {game.boxscore.awayTeamScore}
-          </p>
+          <div>
+            <TeamCard team={game.awayTeam} boxscore={game.boxscore} />
+            {["LIVE", "FINAL", "OFF"].includes(gameState) && (
+              <p className="team-boxscore-shots">
+                Shots: {game.boxscore.awayTeamSOG}
+              </p>
+            )}
+          </div>
+          {["LIVE", "FINAL", "OFF"].includes(gameState) && (
+            <p className="team-boxscore-goals">{game.boxscore.awayTeamScore}</p>
+          )}
         </div>
-        {game.gameState != "FUT" && <p className="team-boxscore-vs">-</p>}
-        {game.gameState === "FUT" && <p className="team-boxscore-vs">at</p>}
+        {teamDivider()}
         <div className="team-boxscore">
-          <p className="team-boxscore-goals">
-            {game.boxscore.homeTeamScore}
-          </p>
-          <TeamCard team={game.homeTeam} boxscore={game.boxscore}/>
+          {["LIVE", "FINAL", "OFF"].includes(gameState) && (
+            <p className="team-boxscore-goals">{game.boxscore.homeTeamScore}</p>
+          )}
+          <div>
+            <TeamCard team={game.homeTeam} boxscore={game.boxscore} />
+            {["LIVE", "FINAL", "OFF"].includes(gameState) && (
+              <p className="team-boxscore-shots">
+                Shots: {game.boxscore.homeTeamSOG}
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </div>

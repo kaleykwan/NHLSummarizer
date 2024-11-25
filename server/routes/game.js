@@ -4,30 +4,32 @@ import { DateTime } from "luxon";
 
 const router = express.Router();
 
-// returns today's games
-router.get("/today", async (req, res) => {
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const currDate = DateTime.now().setZone(userTimeZone).toISODate();
-  let collection = db.collection("games");
-  let results = await collection.find({ date: currDate }).toArray();
-  if (!results) res.send("Error fetching today's games").status(404);
-  else res.send(results).status(200);
-});
+router.get("/current", async (req, res) => {
+  try {
+    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const now = DateTime.now().setZone(userTimeZone);
+    const currDate = now.toISODate();
+    const yesterday = now.minus({ days: 1 }).toISODate();
 
-// returns games that started yesterday (i.e at 10 pm) and are still on-going
-router.get("/yesterday", async (req, res) => {
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  const yesterday = DateTime.now()
-    .setZone(userTimeZone)
-    .minus({ days: 1 })
-    .toISODate();
-  let collection = db.collection("games");
-  let results = await collection
-    .find({ date: yesterday, gameState: { $in: ["LIVE", "FINAL"] } })
-    .toArray();
+    const collection = db.collection("games");
+    const results = await collection
+      .find({
+        $or: [
+          { date: currDate }, // Today's games
+          { date: yesterday, gameState: { $in: ["LIVE"] } }, // Ongoing games from yesterday
+        ],
+      })
+      .toArray();
 
-  if (!results) res.send("Error fetching yesterday's games").status(404);
-  else res.send(results).status(200);
+    if (!results || results.length === 0) {
+      return res.status(404).send("No games found");
+    }
+
+    res.status(200).send(results);
+  } catch (error) {
+    console.error("Error fetching games:", error);
+    res.status(500).send("An error occurred while fetching games");
+  }
 });
 
 export default router;

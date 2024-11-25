@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json());
 app.use("/game", games);
 
-getSchedule();
+//getSchedule();
 
 // start the Express server
 app.listen(PORT, () => {

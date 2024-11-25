@@ -17,6 +17,7 @@ export default async function getSchedule() {
   const gameWeek = schedule.gameWeek;
 
   let collection = db.collection("games");
+  collection.deleteMany({});
   for (let day of gameWeek) {
     for (let game of day.games) {
       try {
@@ -36,7 +37,10 @@ export default async function getSchedule() {
           },
           awayTeam: {
             abbrev: game.awayTeam.abbrev,
-            commonName: game.awayTeam.commonName.default,
+            commonName:
+              game.awayTeam.commonName.default === "Utah Hockey Club"
+                ? "Hockey Club"
+                : game.awayTeam.commonName.default,
             placeName: game.awayTeam.placeName.default,
             logo: game.awayTeam.logo,
           },
@@ -67,10 +71,17 @@ export default async function getSchedule() {
 
 async function updateGames() {
   console.log("running update games");
-  const currDate = DateTime.now().setZone("America/Los_Angeles").toISODate();
+  const now = DateTime.now().setZone("America/Los_Angeles");
+  const currDate = now.toISODate();
+  const yesterday = now.minus({ days: 1 }).toISODate();
 
   let collection = db.collection("games");
-  const currGames = collection.find({ date: currDate });
+  const currGames = collection.find({
+    $or: [
+      { date: currDate },
+      { date: yesterday, gameState: { $in: ["LIVE"] } },
+    ],
+  });
 
   for await (const game of currGames) {
     if (game.gameState === "FINAL" || game.gameState === "OFF") {
@@ -106,7 +117,7 @@ async function updateGames() {
             ? gameInfo.periodDescriptor.periodType
             : "REG",
           "periodDescriptor.timeRemaining": gameInfo.clock.timeRemaining,
-          "periodDescriptor.isIntermission": gameInfo.clock.isIntermission,
+          "periodDescriptor.inIntermission": gameInfo.clock.inIntermission,
           gameState:
             gameInfo.gameState === "CRIT" ? "LIVE" : gameInfo.gameState,
         },

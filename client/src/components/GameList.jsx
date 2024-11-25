@@ -7,14 +7,15 @@ export const GameList = () => {
   const { isPending, data, error } = useQuery({
     queryKey: ["games"],
     queryFn: async () => {
-      const response = await fetch("http://localhost:5050/game/today/");
+      const response = await fetch("http://localhost:5050/game/current/");
       if (!response.ok) {
         throw new Error("Failed to fetch today's games");
       }
       return response.json();
     },
-    staleTime: 1000 * 60 * 2,
+    refetchInterval: 1000 * 60 * 1,
   });
+  
   if (isPending) {
     return "loading";
   }

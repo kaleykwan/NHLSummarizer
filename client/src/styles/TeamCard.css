@@ -4,6 +4,7 @@
   align-content: center;
   width: 200px;
   justify-content: center;
+  gap: 10px;
 }
 
 .team-card-logo {
@@ -12,4 +13,11 @@
 
 .team-card-name {
   font-weight: 500;
+  margin: 0;
+}
+
+@media (width <= 700px) {
+  .team-card {
+    width: 118px;
+  }
 }
