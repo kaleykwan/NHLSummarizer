@@ -29,7 +29,7 @@ export const GameList = () => {
 
   function listOfGames() {
     return (
-      <div>
+      <div className="game-list">
         {data &&
           data.map((game) => {
             return <GameBoxscore game={game} key={game._id} />;
@@ -40,7 +40,7 @@ export const GameList = () => {
 
   return (
     <div>
-      <div className="game-list">{listOfGames()}</div>
+      <div>{listOfGames()}</div>
     </div>
   );
 };
