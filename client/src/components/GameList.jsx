@@ -7,7 +7,9 @@ export const GameList = () => {
   const { isPending, data, error } = useQuery({
     queryKey: ["games"],
     queryFn: async () => {
-      const response = await fetch("nhl-summarizer-backend.vercel.app/game/current/");
+      const response = await fetch(
+        "https://nhl-summarizer-backend.vercel.app/game/current/"
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch today's games");
       }
@@ -20,10 +22,19 @@ export const GameList = () => {
     return "loading";
   }
 
+  if (error) {
+    return "error"
+  }
+
   function listOfGames() {
-    return data.map((game) => {
-      return <GameBoxscore game={game} key={game._id} />;
-    });
+    return (
+      <div>
+        {data &&
+          data.map((game) => {
+            return <GameBoxscore game={game} key={game._id} />;
+          })}
+      </div>
+    );
   }
 
   return (
