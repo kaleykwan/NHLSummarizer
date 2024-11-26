@@ -6,7 +6,7 @@ const router = express.Router();
 
 router.get("/current", async (req, res) => {
   try {
-    const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const userTimeZone = req.query.timeZone || "America/Los_Angeles";
     const now = DateTime.now().setZone(userTimeZone);
     const currDate = now.toISODate();
     const yesterday = now.minus({ days: 1 }).toISODate();

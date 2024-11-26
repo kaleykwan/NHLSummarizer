@@ -7,10 +7,10 @@ export const GameList = () => {
   const { isPending, data, error } = useQuery({
     queryKey: ["games"],
     queryFn: async () => {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const response = await fetch(
-        `https://nhl-summarizer-backend.vercel.app/game/current/`
+        `https://nhl-summarizer-backend.vercel.app/game/current?timeZone=${encodeURIComponent(timeZone)}`
       );
-      // const response = await fetch("http://localhost:5050/game/current/");
       if (!response.ok) {
         throw new Error("Failed to fetch today's games");
       }
