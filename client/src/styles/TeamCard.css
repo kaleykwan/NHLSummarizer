@@ -18,6 +18,6 @@
 
 @media (width <= 700px) {
   .team-card {
-    width: 118px;
+    width: 100px;
   }
 }
