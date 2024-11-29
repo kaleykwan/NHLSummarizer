@@ -19,7 +19,15 @@ const GameBoxscore = ({ game }) => {
       return <p className="boxscore-metadata-live">LIVE</p>;
     }
     if (gameState === "FINAL" || gameState === "OFF") {
-      return <p className="boxscore-metadata-final">FINAL</p>;
+      if (periodDescriptor.periodType === "REG") {
+        return <p className="boxscore-metadata-final">FINAL</p>;
+      } else {
+        return (
+          <p className="boxscore-metadata-final">
+            FINAL/{periodDescriptor.periodType}
+          </p>
+        );
+      }
     }
     return null;
   };
