@@ -21,7 +21,7 @@ router.get("/current", async (req, res) => {
       })
       .toArray();
 
-    if (!results || results.length === 0) {
+    if (!results) {
       return res.status(404).send("No games found");
     }
 

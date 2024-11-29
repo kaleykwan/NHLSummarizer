@@ -9,7 +9,9 @@ export const GameList = () => {
     queryFn: async () => {
       const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const response = await fetch(
-        `https://nhl-summarizer-backend.vercel.app/game/current?timeZone=${encodeURIComponent(timeZone)}`
+        `https://nhl-summarizer-backend.vercel.app/game/current?timeZone=${encodeURIComponent(
+          timeZone
+        )}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch today's games");
@@ -30,10 +32,15 @@ export const GameList = () => {
   function listOfGames() {
     return (
       <div className="game-list">
-        {data &&
+        {data.length > 0 &&
           data.map((game) => {
             return <GameBoxscore game={game} key={game._id} />;
           })}
+        {data.length == 0 && (
+          <div>
+            <p>No games today</p>
+          </div>
+        )}
       </div>
     );
   }

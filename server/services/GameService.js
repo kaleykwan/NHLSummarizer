@@ -1,6 +1,5 @@
 import db from "../db/connection.js";
 import { DateTime } from "luxon";
-import cron from "node-cron";
 
 function getLocaLDay(utcDate, venueTimezone) {
   const localTime = DateTime.fromISO(utcDate, { zone: "utc" }).setZone(
@@ -66,4 +65,3 @@ export default async function getSchedule() {
     }
   }
 }
-cron.schedule("0 0 * * 0", getSchedule);
