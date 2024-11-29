@@ -26,7 +26,7 @@ export const GameList = () => {
   }
 
   if (error) {
-    return "error";
+    return "Sorry, there was an error loading today's games.";
   }
 
   function listOfGames() {
@@ -38,7 +38,10 @@ export const GameList = () => {
           })}
         {data.length == 0 && (
           <div>
-            <p>No games today</p>
+            <p className="game-list-no-games">
+              Sorry, there are no games today.
+            </p>
+            <p className="game-list-no-games">Come back tomorrow!</p>
           </div>
         )}
       </div>
