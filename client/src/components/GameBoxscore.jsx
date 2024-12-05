@@ -18,7 +18,7 @@ const GameBoxscore = ({ game }) => {
     if (gameState === "LIVE") {
       return <p className="boxscore-metadata-live">LIVE</p>;
     }
-    if (gameState === "FINAL" || gameState === "OFF") {
+    if (["OFF", "FINAL"].includes(gameState)) {
       if (periodDescriptor.periodType === "REG") {
         return <p className="boxscore-metadata-final">FINAL</p>;
       } else {
@@ -47,6 +47,9 @@ const GameBoxscore = ({ game }) => {
             OT - {periodDescriptor.timeRemaining}
           </p>
         );
+      }
+      if (periodDescriptor.periodType === "SO") {
+        return <p className="boxscore-metadata-time">SO</p>;
       }
     }
     if (gameState === "LIVE" && periodDescriptor.inIntermission) {

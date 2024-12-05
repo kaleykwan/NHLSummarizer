@@ -1,9 +1,7 @@
 import db from "../db/connection.js";
 import { DateTime } from "luxon";
-import cron from "node-cron";
 
 export default async function updateGames() {
-  console.log("running update games");
   const now = DateTime.now().setZone("America/Los_Angeles");
   const currDate = now.toISODate();
   const yesterday = now.minus({ days: 1 }).toISODate();
@@ -17,7 +15,7 @@ export default async function updateGames() {
   });
 
   for await (const game of currGames) {
-    if (game.gameState === "FINAL" || game.gameState === "OFF") {
+    if (game.gameState === "OFF") {
       continue;
     }
     const game_id = game.game_id;
@@ -58,5 +56,3 @@ export default async function updateGames() {
     );
   }
 }
-
-cron.schedule("*/2 * * * *", updateGames);
