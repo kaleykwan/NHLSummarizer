@@ -15,6 +15,7 @@ export default async function getSchedule() {
   const gameWeek = schedule.gameWeek;
 
   let collection = db.collection("games");
+  collection.deleteMany({});
   for (let day of gameWeek) {
     for (let game of day.games) {
       try {
@@ -58,7 +59,11 @@ export default async function getSchedule() {
             overtime: false,
           },
         };
-        await collection.insertOne(newGame);
+        await collection.updateOne(
+          { game_id: game.id },
+          { $set: newGame },
+          { upsert: true }
+        );
       } catch (err) {
         console.log(err);
       }
