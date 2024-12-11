@@ -15,7 +15,6 @@ export default async function getSchedule() {
   const gameWeek = schedule.gameWeek;
 
   let collection = db.collection("games");
-  collection.deleteMany({});
   for (let day of gameWeek) {
     for (let game of day.games) {
       try {
